@@ -78,6 +78,12 @@ void loop(){
       int inputI = analogRead(PIN_INPUT_I);
       int inputD = analogRead(PIN_INPUT_D);
 
+      // Read Encoder
+      noInterrupts();
+      encoderCountTotal += encoderCount;
+      encoderCount = 0;
+      interrupts();
+      
       // PID Control
       lastError = error;
       error = inputRead - encoderCount;
@@ -113,8 +119,6 @@ void loop(){
       lcd.setCursor(11, 1);
       lcd.print(" ");
       lcd.print(inputD);
-
-      
       
       // Control Motor
       digitalWrite(MOTOR_EN2_PIN, rotateCCW);
