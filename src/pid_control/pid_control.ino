@@ -34,7 +34,7 @@ int error,lastError = 0;
 // Timers (ms)
 unsigned long currentTime;
 unsigned long lastTime;
-const unsigned long periodTime = 500;
+const unsigned long periodTime = 100;
 
 void setup() {
   
@@ -70,19 +70,13 @@ void setup() {
 void loop(){
   	if(millis() > lastTime + periodTime)
     {
-      lastTime = millis();
+      lastTime = millis(); // Reset Timer
       
       // Read Input (Range: 0-1023)
       int inputRead = analogRead(PIN_INPUT_REF);
       int inputP = analogRead(PIN_INPUT_P);
       int inputI = analogRead(PIN_INPUT_I);
       int inputD = analogRead(PIN_INPUT_D);
-
-      // Read Encoder
-      noInterrupts();
-      encoderCountTotal += encoderCount;
-      encoderCount = 0;
-      interrupts();
 
       // PID Control
       lastError = error;
@@ -109,7 +103,7 @@ void loop(){
       lcd.print(motorSpeed);
       lcd.setCursor(8, 0);
       lcd.print("SE ");
-      lcd.print(encoderCountTotal);
+      lcd.print(inputRead);
       lcd.setCursor(0, 1);
       lcd.print("C ");
       lcd.print(inputP);
@@ -120,6 +114,8 @@ void loop(){
       lcd.print(" ");
       lcd.print(inputD);
 
+      
+      
       // Control Motor
       digitalWrite(MOTOR_EN2_PIN, rotateCCW);
       digitalWrite(MOTOR_EN1_PIN, !rotateCCW);
@@ -135,11 +131,10 @@ void isrCount()
   isRotatingCCW = digitalRead(encoder0PinB);
   if(isRotatingCCW == HIGH)
   {
-  	encoderCount--;
+    encoderCount--;
   }
   else
   {
     encoderCount++;
   }
-  
 }
