@@ -1,6 +1,6 @@
 #include <LiquidCrystal.h>
 
-LiquidCrystal lcd(1, 0, 9, 8, 7, 6);
+LiquidCrystal lcd(10, 4, 9, 8, 7, 6);
 
 #define PWM_PIN  5
 #define MOTOR_EN1_PIN  12
@@ -15,8 +15,10 @@ LiquidCrystal lcd(1, 0, 9, 8, 7, 6);
 #define PIN_INPUT_REF A3
 #define PIN_OUTPUT_CTRL A4
 
+#define ERRO_MIN 75
+
 // Encoder
-volatile long  encoderCount = 42;
+volatile long  encoderCount = 0;
 volatile bool isRotatingCCW = true;
 long  encoderCountTotal = 0;
 
@@ -31,10 +33,11 @@ int cntrlD = 0;
 int cntrlSignal = 0;
 int error,lastError = 0;
 
+
 // Timers (ms)
 unsigned long currentTime;
 unsigned long lastTime;
-const unsigned long periodTime = 100;
+const unsigned long periodTime = 1; // periodTime = 1 is required to work on Tinkercad!
 
 void setup() {
   
@@ -65,6 +68,9 @@ void setup() {
 	lcd.begin(16, 2);    //Definindo o LCD com 16 colunas e 2 linhas	
 	lcd.clear();         // Limpa LCD
   	lcd.setCursor(0, 0); //Definindo o cursor na posição inicial do LCD
+    
+  	// Serial
+    Serial.begin(9600);
 }
 
 void loop(){
@@ -86,39 +92,45 @@ void loop(){
       
       // PID Control
       lastError = error;
-      error = inputRead - encoderCount;
+      error = inputRead - encoderCountTotal;
       cntrlP = inputP*error;
       cntrlI = cntrlI + inputI*error*periodTime;
       cntrlD = inputD*(error-lastError)/periodTime;
-      cntrlSignal = (cntrlP + cntrlI + cntrlD) >> 5;
-      if(cntrlSignal >= 0)
+      cntrlSignal = (cntrlP + cntrlI + cntrlD) >> 8;
+      if(error >= ERRO_MIN)
       {
         rotateCCW = LOW;
         motorSpeed = cntrlSignal;
       }
-      else
+      else if(error <= -ERRO_MIN)
       {
         rotateCCW = HIGH;
         motorSpeed = -cntrlSignal;
+      }
+      else
+      {
+        rotateCCW = LOW;
+        motorSpeed = 0;
       }
 
       // LCD - Print Variables
       lcd.clear();
       lcd.setCursor(0, 0);
       lcd.print("SP ");
-      lcd.print(motorSpeed);
+      lcd.print(inputRead);
       lcd.setCursor(8, 0);
       lcd.print("SE ");
-      lcd.print(inputRead);
+      lcd.print(encoderCountTotal);
       lcd.setCursor(0, 1);
-      lcd.print("C ");
+      lcd.print("PID:");
       lcd.print(inputP);
-      lcd.setCursor(6, 1);
-      lcd.print(" ");
+      lcd.print(",");
       lcd.print(inputI);
-      lcd.setCursor(11, 1);
-      lcd.print(" ");
+      lcd.print(",");
       lcd.print(inputD);
+      
+      // Serial - Plot Chart
+      Serial.println(encoderCountTotal);
       
       // Control Motor
       digitalWrite(MOTOR_EN2_PIN, rotateCCW);
