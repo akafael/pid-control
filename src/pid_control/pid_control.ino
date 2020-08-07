@@ -37,7 +37,8 @@ int error,lastError = 0;
 // Timers (ms)
 unsigned long currentTime;
 unsigned long lastTime;
-const unsigned long periodTime = 1; // periodTime = 1 is required to work on Tinkercad!
+const unsigned long periodTime = 1; // periodTime = 1 is required for Tinkercad
+//const unsigned long periodTime = 200; // For Real Systems You should try something above 200ms due to the serial communication time
 
 void setup() {
   
