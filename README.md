@@ -2,7 +2,7 @@
 
 PID Control Using Arduino inside Tinkercad.
 
-![PID Circuit](https://csg.tinkercad.com/things/jzzxdKEZH5K/t725.png?rev=1594431030849000000)
+[![PID Circuit](https://csg.tinkercad.com/things/jzzxdKEZH5K/t725.png?rev=1594431030849000000)](https://www.tinkercad.com/things/jzzxdKEZH5K)
 
 ## Results
  * [Simulation using Tinkercad](https://www.tinkercad.com/things/jzzxdKEZH5K)
